@@ -66,7 +66,7 @@ func (api *Api) buildGetEventReq(params map[string]string) (*http.Request, error
 func (api *Api) call(req *http.Request) (string, error) {
 
 	if api.client == nil {
-		api.client = &http.Client{Timeout:api.conf.timeout}
+		api.client = &http.Client{Timeout: api.conf.timeout}
 	}
 
 	resp, err := api.client.Do(req)
