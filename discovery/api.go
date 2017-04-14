@@ -7,8 +7,9 @@ import (
 )
 
 type Api struct {
-	key  string
-	conf Configuration
+	key    string
+	conf   Configuration
+	client *http.Client
 }
 
 func NewApi(key string, conf Configuration) *Api {
@@ -64,8 +65,11 @@ func (api *Api) buildGetEventReq(params map[string]string) (*http.Request, error
 
 func (api *Api) call(req *http.Request) (string, error) {
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	if api.client == nil {
+		api.client = &http.Client{Timeout:api.conf.timeout}
+	}
+
+	resp, err := api.client.Do(req)
 	if err != nil {
 		log.Println("call:", err)
 		return "", err
