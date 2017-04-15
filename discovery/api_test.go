@@ -12,15 +12,16 @@ import (
 const (
 	okResponse    = `{"fake ok response json string"}`
 	errorResponse = `{"fake error json string"}`
-	validApiKey   = "validApiKey"
-	invalidApiKey = "invalidApiKey"
+	validAPIKey   = "validApiKey"
+	invalidAPIKey = "invalidApiKey"
 )
 
 func buildTestServer() *httptest.Server {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		if r.URL.Query().Get("apikey") == validApiKey {
+		if r.URL.Query().Get("apikey") == validAPIKey {
 			fmt.Fprint(w, okResponse)
+
 		} else {
 			fmt.Fprint(w, errorResponse)
 		}
@@ -42,7 +43,7 @@ func buildTimeoutServer() *httptest.Server {
 func TestCallApiWithSuccess(t *testing.T) {
 	ts := buildTestServer()
 	defer ts.Close()
-	api := NewApi(validApiKey, Configuration{url: ts.URL})
+	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL})
 
 	resp, _ := api.EventsByKeyword("test")
 
@@ -54,7 +55,7 @@ func TestCallApiWithSuccess(t *testing.T) {
 func TestCallApiWithError(t *testing.T) {
 	ts := buildTestServer()
 	defer ts.Close()
-	api := NewApi(invalidApiKey, Configuration{url: ts.URL})
+	api := NewAPI(Configuration{key: invalidAPIKey, url: ts.URL})
 
 	resp, _ := api.EventsByKeyword("test")
 
@@ -66,7 +67,7 @@ func TestCallApiWithError(t *testing.T) {
 func TestCallApiWithTimeout(t *testing.T) {
 	ts := buildTimeoutServer()
 	defer ts.Close()
-	api := NewApi(validApiKey, Configuration{url: ts.URL, timeout: 10 * time.Millisecond})
+	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL, timeout: 10 * time.Millisecond})
 
 	_, err := api.EventsByKeyword("test")
 

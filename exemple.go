@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/piclemx/sdk-go/discovery"
 	"log"
 	"os"
+
+	"github.com/piclemx/sdk-go/discovery"
 )
 
 func main() {
