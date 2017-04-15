@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// API struct contains the API client and is congiguration.
+// API struct contains the API client and is configuration.
 type API struct {
 	conf   Configuration
 	client *http.Client
@@ -15,6 +15,11 @@ type API struct {
 // NewAPI : Creation of a new client
 func NewAPI(conf Configuration) *API {
 	return &API{conf: conf}
+}
+
+// Key return the current key for the API.
+func (api *API) Key() string {
+	return api.conf.key
 }
 
 // EventsByKeyword : Get envts by keyword

@@ -16,7 +16,7 @@ func main() {
 		return
 	}
 
-	api := discovery.NewApi(apikey, discovery.DefaultConfiguration())
+	api := discovery.NewAPI(discovery.DefaultConfiguration().WithKey(apikey))
 	resp, err := api.EventsByKeyword("ed sheeran")
 	if err != nil {
 		log.Println(err)

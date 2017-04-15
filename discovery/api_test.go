@@ -75,3 +75,12 @@ func TestCallApiWithTimeout(t *testing.T) {
 		t.Errorf("should have timout")
 	}
 }
+
+func TestGetKey(t *testing.T) {
+	key := "key"
+	api := NewAPI(DefaultConfiguration().WithKey(key))
+
+	if api.Key() != "" && api.Key() != key {
+		t.Errorf("Should have the same key")
+	}
+}
