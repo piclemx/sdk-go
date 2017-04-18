@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/piclemx/sdk-go/discovery"
+	"github.com/piclemx/sdk-go/parameters"
 )
 
 func main() {
@@ -17,9 +18,26 @@ func main() {
 	}
 
 	api := discovery.NewAPI(discovery.DefaultConfiguration().WithKey(apikey))
-	resp, err := api.EventsByKeyword("ed sheeran")
+
+	eventSearchReq := discovery.BuildEventSearchReq().WithParam(parameters.Keyword, "ed sheeran")
+	eventSearchResp, err := api.Call(eventSearchReq)
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(resp)
+	fmt.Println(eventSearchResp)
+
+	eventDetailsReq := discovery.BuildGetEventDetReq("16vZZfJ-wG7nv60")
+	eventDetailsResp, err := api.Call(eventDetailsReq)
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(eventDetailsResp)
+
+	eventImagesReq := discovery.BuildGetEventImgReq("16vZZfJ-wG7nv60")
+	eventImagesResp, err := api.Call(eventImagesReq)
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(eventImagesResp)
+
 }

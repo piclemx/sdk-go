@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"fmt"
+	"github.com/piclemx/sdk-go/parameters"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -45,7 +46,7 @@ func TestCallApiWithSuccess(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL})
 
-	resp, _ := api.EventsByKeyword("test")
+	resp, _ := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
 	if resp != okResponse {
 		t.Errorf("received incorrect response: %s", resp)
@@ -57,7 +58,7 @@ func TestCallApiWithError(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: invalidAPIKey, url: ts.URL})
 
-	resp, _ := api.EventsByKeyword("test")
+	resp, _ := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
 	if resp != errorResponse {
 		t.Errorf("received incorrect response: %s", resp)
@@ -69,7 +70,7 @@ func TestCallApiWithTimeout(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL, timeout: 10 * time.Millisecond})
 
-	_, err := api.EventsByKeyword("test")
+	_, err := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
 	if err == nil || !strings.Contains(err.Error(), "Client.Timeout") {
 		t.Errorf("should have timout")
@@ -82,5 +83,53 @@ func TestGetKey(t *testing.T) {
 
 	if api.Key() != "" && api.Key() != key {
 		t.Errorf("Should have the same key")
+	}
+}
+
+func TestBuildGetEventDetailsSuccess(t *testing.T) {
+	ts := buildTestServer()
+	defer ts.Close()
+	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL})
+
+	resp, _ := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
+
+	if resp != okResponse {
+		t.Errorf("received incorrect response: %s", resp)
+	}
+}
+
+func TestBuildGetEventDetailsError(t *testing.T) {
+	ts := buildTestServer()
+	defer ts.Close()
+	api := NewAPI(Configuration{key: invalidAPIKey, url: ts.URL})
+
+	resp, _ := api.Call(BuildGetEventDetReq("test"))
+
+	if resp != errorResponse {
+		t.Errorf("received incorrect response: %s", resp)
+	}
+}
+
+func TestBuildGetEventImagesSuccess(t *testing.T) {
+	ts := buildTestServer()
+	defer ts.Close()
+	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL})
+
+	resp, _ := api.Call(BuildGetEventImgReq("test"))
+
+	if resp != okResponse {
+		t.Errorf("received incorrect response: %s", resp)
+	}
+}
+
+func TestBuildGetEventImagesError(t *testing.T) {
+	ts := buildTestServer()
+	defer ts.Close()
+	api := NewAPI(Configuration{key: invalidAPIKey, url: ts.URL})
+
+	resp, _ := api.Call(BuildGetEventImgReq("test"))
+
+	if resp != errorResponse {
+		t.Errorf("received incorrect response: %s", resp)
 	}
 }
