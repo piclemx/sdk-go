@@ -22,60 +22,33 @@ func (api *API) Key() string {
 	return api.conf.key
 }
 
-// EventsByKeyword : Get envts by keyword
-func (api *API) EventsByKeyword(keyword string) (string, error) {
-	params := map[string]string{"keyword": keyword}
-	resp, err := api.getEvents(params)
-	if err != nil {
-		log.Println("EventsByKeyword: could not get events")
-		return "", err
-	}
-	return resp, nil
+// API request method, resource and params
+type APIRequest struct {
+	method   string
+	resource string
+	params   map[string]string
 }
 
-func (api *API) getEvents(params map[string]string) (string, error) {
-
-	req, err := api.buildGetEventReq(params)
-	if err != nil {
-		log.Println("getEvents:", err)
-		return "", err
-	}
-
-	resp, err := api.call(req)
-	if err != nil {
-		log.Println("getEvents:", err)
-		return "", err
-	}
-
-	return resp, nil
-
+// Adds parameters in the request
+func (apiReq *APIRequest) WithParam(param string, value string) *APIRequest {
+	apiReq.params[param] = value
+	return apiReq
 }
 
-func (api *API) buildGetEventReq(params map[string]string) (*http.Request, error) {
-
-	req, err := http.NewRequest("GET", api.conf.url+"/events.json", nil)
-	if err != nil {
-		log.Println("buildGetEventReq:", err)
-		return nil, err
-	}
-
-	q := req.URL.Query()
-	q.Add("apikey", api.conf.key)
-	for key, value := range params {
-		q.Add(key, value)
-	}
-
-	req.URL.RawQuery = q.Encode()
-
-	return req, nil
-}
-
-func (api *API) call(req *http.Request) (string, error) {
-
+// Call discovery API
+func (api *API) Call(apiReq *APIRequest) (string, error) {
 	if api.client == nil {
 		api.client = &http.Client{Timeout: api.conf.timeout}
 	}
 
+	apiReq.WithParam("apikey", api.Key())
+	req, err := api.buildHttpReq(apiReq)
+	if err != nil {
+		log.Println("call:", err)
+		return "", err
+	}
+
+	log.Println(req.URL.String())
 	resp, err := api.client.Do(req)
 	if err != nil {
 		log.Println("call:", err)
@@ -86,4 +59,31 @@ func (api *API) call(req *http.Request) (string, error) {
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	return string(body), nil
+}
+
+func baseAPIReq() *APIRequest {
+	apiReq := &APIRequest{method: "GET", params: make(map[string]string)}
+	return apiReq
+}
+
+func (apiRep *APIRequest) withResource(resource string) *APIRequest {
+	apiRep.resource = resource
+	return apiRep
+}
+
+func (api *API) buildHttpReq(request *APIRequest) (*http.Request, error) {
+
+	req, err := http.NewRequest(request.method, api.conf.url+request.resource, nil)
+	if err != nil {
+		log.Println("buildHttpReq:", err)
+		return nil, err
+	}
+
+	q := req.URL.Query()
+	for key, value := range request.params {
+		q.Add(key, value)
+	}
+
+	req.URL.RawQuery = q.Encode()
+	return req, nil
 }
