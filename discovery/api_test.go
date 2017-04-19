@@ -48,7 +48,7 @@ func TestCallApiWithSuccess(t *testing.T) {
 
 	resp, _ := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
-	if resp != okResponse {
+	if string(resp) != okResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -60,7 +60,7 @@ func TestCallApiWithError(t *testing.T) {
 
 	resp, _ := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
-	if resp != errorResponse {
+	if string(resp) != errorResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -73,7 +73,7 @@ func TestCallApiWithTimeout(t *testing.T) {
 	_, err := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
 	if err == nil || !strings.Contains(err.Error(), "Client.Timeout") {
-		t.Errorf("should have timout")
+		t.Errorf("should have timeout")
 	}
 }
 
@@ -93,7 +93,7 @@ func TestBuildGetEventDetailsSuccess(t *testing.T) {
 
 	resp, _ := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
-	if resp != okResponse {
+	if string(resp) != okResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -105,7 +105,7 @@ func TestBuildGetEventDetailsError(t *testing.T) {
 
 	resp, _ := api.Call(BuildGetEventDetReq("test"))
 
-	if resp != errorResponse {
+	if string(resp) != errorResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -117,7 +117,7 @@ func TestBuildGetEventImagesSuccess(t *testing.T) {
 
 	resp, _ := api.Call(BuildGetEventImgReq("test"))
 
-	if resp != okResponse {
+	if string(resp) != okResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -129,7 +129,7 @@ func TestBuildGetEventImagesError(t *testing.T) {
 
 	resp, _ := api.Call(BuildGetEventImgReq("test"))
 
-	if resp != errorResponse {
+	if string(resp) != errorResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }

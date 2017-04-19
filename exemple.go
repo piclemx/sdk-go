@@ -7,6 +7,7 @@ import (
 
 	"github.com/piclemx/sdk-go/discovery"
 	"github.com/piclemx/sdk-go/parameters"
+	"github.com/piclemx/sdk-go/discovery/domain"
 )
 
 func main() {
@@ -20,24 +21,26 @@ func main() {
 	api := discovery.NewAPI(discovery.DefaultConfiguration().WithKey(apikey))
 
 	eventSearchReq := discovery.BuildEventSearchReq().WithParam(parameters.Keyword, "ed sheeran")
-	eventSearchResp, err := api.Call(eventSearchReq)
+	var eventSearchResp domain.EventResponse
+	err := api.Call(eventSearchReq).WriteTo(&eventSearchResp)
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(eventSearchResp)
+	fmt.Println(eventSearchResp.Embedded.Events)
 
-	eventDetailsReq := discovery.BuildGetEventDetReq("16vZZfJ-wG7nv60")
-	eventDetailsResp, err := api.Call(eventDetailsReq)
+	eventDetailsReq := discovery.BuildGetEventDetReq(eventSearchResp.Embedded.Events[0].Id)
+	var eventDetailsResp domain.Event
+	err = api.Call(eventDetailsReq).WriteTo(&eventDetailsResp)
 	if err != nil {
 		log.Println(err)
 	}
 	fmt.Println(eventDetailsResp)
 
-	eventImagesReq := discovery.BuildGetEventImgReq("16vZZfJ-wG7nv60")
-	eventImagesResp, err := api.Call(eventImagesReq)
+	eventImagesReq := discovery.BuildGetEventImgReq(eventDetailsResp.Id)
+	var eventImagesResp domain.Event
+	err = api.Call(eventImagesReq).WriteTo(&eventImagesResp)
 	if err != nil {
 		log.Println(err)
 	}
 	fmt.Println(eventImagesResp)
-
 }
