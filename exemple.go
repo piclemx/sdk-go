@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/piclemx/sdk-go/discovery"
-	"github.com/piclemx/sdk-go/parameters"
 	"github.com/piclemx/sdk-go/discovery/domain"
+	"github.com/piclemx/sdk-go/parameters"
 )
 
 func main() {
@@ -26,15 +26,19 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(eventSearchResp.Embedded.Events)
+	for _, event := range eventSearchResp.Embedded.Events {
+		fmt.Println(event.Id, event.Name, event.URL)
+	}
 
 	eventDetailsReq := discovery.BuildGetEventDetReq(eventSearchResp.Embedded.Events[0].Id)
 	var eventDetailsResp domain.Event
-	err = api.Call(eventDetailsReq).WriteTo(&eventDetailsResp)
-	if err != nil {
+	apiResp := api.Call(eventDetailsReq)
+	apiResp.WriteTo(&eventDetailsResp)
+	if apiResp.Err != nil {
 		log.Println(err)
 	}
-	fmt.Println(eventDetailsResp)
+	fmt.Println(string(apiResp.Resp))
+	fmt.Println(eventDetailsResp.Id, eventDetailsResp.Name, eventDetailsResp.URL)
 
 	eventImagesReq := discovery.BuildGetEventImgReq(eventDetailsResp.Id)
 	var eventImagesResp domain.Event
@@ -42,5 +46,7 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(eventImagesResp)
+	for _, image := range eventImagesResp.Images {
+		fmt.Println(image.Ratio, image.Url)
+	}
 }

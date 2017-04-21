@@ -1,10 +1,10 @@
 package discovery
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"encoding/json"
 )
 
 // API struct contains the API client and is configuration.
@@ -38,7 +38,7 @@ func (apiReq *APIRequest) WithParam(param string, value string) *APIRequest {
 
 type ApiResponse struct {
 	Resp []byte
-	Err error
+	Err  error
 }
 
 // Call discovery API

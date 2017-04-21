@@ -46,9 +46,10 @@ func TestCallApiWithSuccess(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL})
 
-	resp, _ := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
+	apiResp := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
-	if string(resp) != okResponse {
+	resp := string(apiResp.Resp)
+	if resp != okResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -58,9 +59,10 @@ func TestCallApiWithError(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: invalidAPIKey, url: ts.URL})
 
-	resp, _ := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
+	apiResp := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
-	if string(resp) != errorResponse {
+	resp := string(apiResp.Resp)
+	if resp != errorResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -70,9 +72,9 @@ func TestCallApiWithTimeout(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL, timeout: 10 * time.Millisecond})
 
-	_, err := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
+	apiResp := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
-	if err == nil || !strings.Contains(err.Error(), "Client.Timeout") {
+	if apiResp.Err == nil || !strings.Contains(apiResp.Err.Error(), "Client.Timeout") {
 		t.Errorf("should have timeout")
 	}
 }
@@ -91,9 +93,10 @@ func TestBuildGetEventDetailsSuccess(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL})
 
-	resp, _ := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
+	apiResp := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 
-	if string(resp) != okResponse {
+	resp := string(apiResp.Resp)
+	if resp != okResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -103,9 +106,10 @@ func TestBuildGetEventDetailsError(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: invalidAPIKey, url: ts.URL})
 
-	resp, _ := api.Call(BuildGetEventDetReq("test"))
+	apiResp := api.Call(BuildGetEventDetReq("test"))
 
-	if string(resp) != errorResponse {
+	resp := string(apiResp.Resp)
+	if resp != errorResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -115,9 +119,10 @@ func TestBuildGetEventImagesSuccess(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: validAPIKey, url: ts.URL})
 
-	resp, _ := api.Call(BuildGetEventImgReq("test"))
+	apiResp := api.Call(BuildGetEventImgReq("test"))
 
-	if string(resp) != okResponse {
+	resp := string(apiResp.Resp)
+	if resp != okResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -127,9 +132,10 @@ func TestBuildGetEventImagesError(t *testing.T) {
 	defer ts.Close()
 	api := NewAPI(Configuration{key: invalidAPIKey, url: ts.URL})
 
-	resp, _ := api.Call(BuildGetEventImgReq("test"))
+	apiResp := api.Call(BuildGetEventImgReq("test"))
 
-	if string(resp) != errorResponse {
+	resp := string(apiResp.Resp)
+	if resp != errorResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
