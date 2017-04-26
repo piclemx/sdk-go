@@ -1,6 +1,7 @@
-package discovery
+package api
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,9 +18,9 @@ func NewAPI(conf Configuration) *API {
 	return &API{conf: conf}
 }
 
-// Key return the current key for the API.
+// Key return the current Key for the API.
 func (api *API) Key() string {
-	return api.conf.key
+	return api.conf.Key
 }
 
 // API request method, resource and params
@@ -36,44 +37,49 @@ func (apiReq *APIRequest) WithParam(param string, value string) *APIRequest {
 }
 
 // Call discovery API
-func (api *API) Call(apiReq *APIRequest) (string, error) {
+func (api *API) Call(apiReq *APIRequest, value interface{}) error {
 	if api.client == nil {
-		api.client = &http.Client{Timeout: api.conf.timeout}
+		api.client = &http.Client{Timeout: api.conf.Timeout}
 	}
 
 	apiReq.WithParam("apikey", api.Key())
 	req, err := api.buildHttpReq(apiReq)
 	if err != nil {
 		log.Println("call:", err)
-		return "", err
+		return err
 	}
 
 	log.Println(req.URL.String())
+	log.Flags()
 	resp, err := api.client.Do(req)
 	if err != nil {
 		log.Println("call:", err)
-		return "", err
+		return err
 	}
 
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("call:", err)
+		return err
+	}
 
-	return string(body), nil
+	return json.Unmarshal(body, &value)
 }
 
-func baseAPIReq() *APIRequest {
+func BaseAPIReq() *APIRequest {
 	apiReq := &APIRequest{method: "GET", params: make(map[string]string)}
 	return apiReq
 }
 
-func (apiRep *APIRequest) withResource(resource string) *APIRequest {
+func (apiRep *APIRequest) WithResource(resource string) *APIRequest {
 	apiRep.resource = resource
 	return apiRep
 }
 
 func (api *API) buildHttpReq(request *APIRequest) (*http.Request, error) {
 
-	req, err := http.NewRequest(request.method, api.conf.url+request.resource, nil)
+	req, err := http.NewRequest(request.method, api.conf.URL+request.resource, nil)
 	if err != nil {
 		log.Println("buildHttpReq:", err)
 		return nil, err
