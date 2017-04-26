@@ -36,13 +36,8 @@ func (apiReq *APIRequest) WithParam(param string, value string) *APIRequest {
 	return apiReq
 }
 
-type ApiResponse struct {
-	Resp []byte
-	Err  error
-}
-
 // Call discovery API
-func (api *API) Call(apiReq *APIRequest) *ApiResponse {
+func (api *API) Call(apiReq *APIRequest, value interface{}) error {
 	if api.client == nil {
 		api.client = &http.Client{Timeout: api.conf.timeout}
 	}
@@ -51,7 +46,7 @@ func (api *API) Call(apiReq *APIRequest) *ApiResponse {
 	req, err := api.buildHttpReq(apiReq)
 	if err != nil {
 		log.Println("call:", err)
-		return &ApiResponse{Err: err}
+		return err
 	}
 
 	log.Println(req.URL.String())
@@ -59,27 +54,17 @@ func (api *API) Call(apiReq *APIRequest) *ApiResponse {
 	resp, err := api.client.Do(req)
 	if err != nil {
 		log.Println("call:", err)
-		return &ApiResponse{Err: err}
+		return err
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-
-	return &ApiResponse{body, err}
-}
-
-// Writes the response body to the variable passed
-func (apiResp *ApiResponse) WriteTo(value interface{}) error {
-	if apiResp.Err != nil {
-		return apiResp.Err
-	}
-
-	err := json.Unmarshal(apiResp.Resp, &value)
 	if err != nil {
+		log.Println("call:", err)
 		return err
 	}
 
-	return nil
+	return json.Unmarshal(body, &value)
 }
 
 func baseAPIReq() *APIRequest {

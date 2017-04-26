@@ -22,7 +22,7 @@ func main() {
 
 	eventSearchReq := discovery.BuildEventSearchReq().WithParam(parameters.Keyword, "ed sheeran")
 	var eventSearchResp domain.EventResponse
-	err := api.Call(eventSearchReq).WriteTo(&eventSearchResp)
+	err := api.Call(eventSearchReq, &eventSearchResp)
 	if err != nil {
 		log.Println(err)
 	}
@@ -32,17 +32,15 @@ func main() {
 
 	eventDetailsReq := discovery.BuildGetEventDetReq(eventSearchResp.Embedded.Events[0].Id)
 	var eventDetailsResp domain.Event
-	apiResp := api.Call(eventDetailsReq)
-	apiResp.WriteTo(&eventDetailsResp)
-	if apiResp.Err != nil {
+	err = api.Call(eventDetailsReq, &eventDetailsResp)
+	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(string(apiResp.Resp))
 	fmt.Println(eventDetailsResp.Id, eventDetailsResp.Name, eventDetailsResp.URL)
 
 	eventImagesReq := discovery.BuildGetEventImgReq(eventDetailsResp.Id)
 	var eventImagesResp domain.Event
-	err = api.Call(eventImagesReq).WriteTo(&eventImagesResp)
+	err = api.Call(eventImagesReq, &eventImagesResp)
 	if err != nil {
 		log.Println(err)
 	}

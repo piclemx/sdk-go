@@ -11,7 +11,7 @@ type Links struct {
 	Prev Link `json:"prev"`
 }
 
-type Loc struct {
+type Location struct {
 	Longitude float64 `json:"longitute"`
 	Latitude  float64 `json:"latitude"`
 }
