@@ -1,12 +1,12 @@
-package discovery
+package api
 
 import "time"
 
 // Configuration : Struct that contains elememts for the API client
 type Configuration struct {
-	key     string
-	url     string
-	timeout time.Duration
+	Key     string
+	URL     string
+	Timeout time.Duration
 }
 
 // DefaultURL is the current API URL if none is provided
@@ -18,13 +18,13 @@ const DefaultTimeout time.Duration = 2 * time.Second
 // DefaultConfiguration function gives defaults values
 func DefaultConfiguration() Configuration {
 	return Configuration{
-		key:     "",
-		url:     DefaultURL,
-		timeout: DefaultTimeout}
+		Key:     "",
+		URL:     DefaultURL,
+		Timeout: DefaultTimeout}
 }
 
-// WithKey return the same Configuration with a new key
+// WithKey return the same Configuration with a new Key
 func (c Configuration) WithKey(key string) Configuration {
-	c.key = key
+	c.Key = key
 	return c
 }
