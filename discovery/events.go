@@ -1,20 +1,59 @@
 package discovery
 
-import "github.com/piclemx/sdk-go/api"
+import (
+	"github.com/piclemx/sdk-go/client"
+	"github.com/piclemx/sdk-go/discovery/domain"
+	"log"
+	"encoding/json"
+)
 
 const eventResource = "/events"
 
 // Adds event resource for searching multiple occurrences
-func BuildEventSearchReq() *api.APIRequest {
-	return api.BaseAPIReq().WithResource(eventResource)
+func BuildEventSearchReq() *client.APIRequest {
+	return client.BaseAPIReq().WithResource(eventResource)
 }
 
 // Add event resource and id for getting specific occurrence details
-func BuildGetEventDetReq(id string) *api.APIRequest {
-	return api.BaseAPIReq().WithResource(eventResource + "/" + id)
+func BuildGetEventDetReq(id string) *client.APIRequest {
+	return client.BaseAPIReq().WithResource(eventResource + "/" + id)
 }
 
 // Add event resource and id for getting specific occurrence images
-func BuildGetEventImgReq(id string) *api.APIRequest {
-	return api.BaseAPIReq().WithResource(eventResource + "/" + id + "/images")
+func BuildGetEventImgReq(id string) *client.APIRequest {
+	return client.BaseAPIReq().WithResource(eventResource + "/" + id + "/images")
+}
+
+
+func CallForEvents(client *client.Client, request *client.APIRequest) (*domain.Events, error) {
+	resp, err := client.Call(request)
+	if err != nil {
+		log.Println("CallForEvents:", err.Error())
+		return nil, err
+	}
+
+	var eventResponse domain.EventResponse
+	err = json.Unmarshal([]byte(resp), &eventResponse)
+	if err != nil {
+		log.Println("CallForEvents:", err.Error())
+		return nil, err
+	}
+	return &eventResponse.Embedded, nil
+}
+
+func CallForEvent(client *client.Client, request *client.APIRequest) (*domain.Event, error) {
+	resp, err := client.Call(request)
+	if err != nil {
+		log.Println("CallForEvents:", err.Error())
+		return nil, err
+	}
+
+	var event domain.Event
+	err = json.Unmarshal([]byte(resp), &event)
+	if err != nil {
+		log.Println("CallForEvents:", err.Error())
+		return nil, err
+	}
+	return &event, nil
+
 }
