@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// Client struct contains the Client client and is configuration.
+// Client struct contains the http client and its configuration.
 type Client struct {
 	conf   Configuration
 	client *http.Client
@@ -17,12 +17,12 @@ func NewClient(conf Configuration) *Client {
 	return &Client{conf: conf}
 }
 
-// Key return the current Key for the Client.
+// Key return the current Key for the api.
 func (client *Client) Key() string {
 	return client.conf.Key
 }
 
-// Client request method, resource and params
+// API request method, resource and params
 type APIRequest struct {
 	method   string
 	resource string
@@ -35,8 +35,8 @@ func (apiReq *APIRequest) WithParam(param string, value string) *APIRequest {
 	return apiReq
 }
 
-// Call discovery Client
-func (client *Client) Call(apiReq *APIRequest) (string,error) {
+// Call discovery api
+func (client *Client) Call(apiReq *APIRequest) (string, error) {
 	if client.client == nil {
 		client.client = &http.Client{Timeout: client.conf.Timeout}
 	}

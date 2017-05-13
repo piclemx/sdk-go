@@ -1,10 +1,10 @@
 package discovery
 
 import (
+	"encoding/json"
 	"github.com/piclemx/sdk-go/client"
 	"github.com/piclemx/sdk-go/discovery/domain"
 	"log"
-	"encoding/json"
 )
 
 const eventResource = "/events"
@@ -23,7 +23,6 @@ func BuildGetEventDetReq(id string) *client.APIRequest {
 func BuildGetEventImgReq(id string) *client.APIRequest {
 	return client.BaseAPIReq().WithResource(eventResource + "/" + id + "/images")
 }
-
 
 func CallForEvents(client *client.Client, request *client.APIRequest) (*domain.Events, error) {
 	resp, err := client.Call(request)
