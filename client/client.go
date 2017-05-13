@@ -1,29 +1,28 @@
-package api
+package client
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-// API struct contains the API client and is configuration.
-type API struct {
+// Client struct contains the Client client and is configuration.
+type Client struct {
 	conf   Configuration
 	client *http.Client
 }
 
-// NewAPI : Creation of a new client
-func NewAPI(conf Configuration) *API {
-	return &API{conf: conf}
+// NewClient : Creation of a new client
+func NewClient(conf Configuration) *Client {
+	return &Client{conf: conf}
 }
 
-// Key return the current Key for the API.
-func (api *API) Key() string {
-	return api.conf.Key
+// Key return the current Key for the Client.
+func (client *Client) Key() string {
+	return client.conf.Key
 }
 
-// API request method, resource and params
+// Client request method, resource and params
 type APIRequest struct {
 	method   string
 	resource string
@@ -36,35 +35,35 @@ func (apiReq *APIRequest) WithParam(param string, value string) *APIRequest {
 	return apiReq
 }
 
-// Call discovery API
-func (api *API) Call(apiReq *APIRequest, value interface{}) error {
-	if api.client == nil {
-		api.client = &http.Client{Timeout: api.conf.Timeout}
+// Call discovery Client
+func (client *Client) Call(apiReq *APIRequest) (string,error) {
+	if client.client == nil {
+		client.client = &http.Client{Timeout: client.conf.Timeout}
 	}
 
-	apiReq.WithParam("apikey", api.Key())
-	req, err := api.buildHttpReq(apiReq)
+	apiReq.WithParam("apikey", client.Key())
+	req, err := client.buildHttpReq(apiReq)
 	if err != nil {
 		log.Println("call:", err)
-		return err
+		return "", err
 	}
 
 	log.Println(req.URL.String())
 	log.Flags()
-	resp, err := api.client.Do(req)
+	resp, err := client.client.Do(req)
 	if err != nil {
 		log.Println("call:", err)
-		return err
+		return "", err
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("call:", err)
-		return err
+		return "", err
 	}
 
-	return json.Unmarshal(body, &value)
+	return string(body), nil
 }
 
 func BaseAPIReq() *APIRequest {
@@ -77,9 +76,9 @@ func (apiRep *APIRequest) WithResource(resource string) *APIRequest {
 	return apiRep
 }
 
-func (api *API) buildHttpReq(request *APIRequest) (*http.Request, error) {
+func (client *Client) buildHttpReq(request *APIRequest) (*http.Request, error) {
 
-	req, err := http.NewRequest(request.method, api.conf.URL+request.resource, nil)
+	req, err := http.NewRequest(request.method, client.conf.URL+request.resource, nil)
 	if err != nil {
 		log.Println("buildHttpReq:", err)
 		return nil, err

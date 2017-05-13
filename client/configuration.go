@@ -1,15 +1,15 @@
-package api
+package client
 
 import "time"
 
-// Configuration : Struct that contains elememts for the API client
+// Configuration : Struct that contains elememts for the Client client
 type Configuration struct {
 	Key     string
 	URL     string
 	Timeout time.Duration
 }
 
-// DefaultURL is the current API URL if none is provided
+// DefaultURL is the current Client URL if none is provided
 const DefaultURL string = "https://app.ticketmaster.com/discovery/v2"
 
 // DefaultTimeout set to 2 seconds

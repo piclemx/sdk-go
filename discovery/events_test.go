@@ -2,8 +2,7 @@ package discovery
 
 import (
 	"fmt"
-	"github.com/piclemx/sdk-go/api"
-	"github.com/piclemx/sdk-go/discovery/domain"
+	"github.com/piclemx/sdk-go/client"
 	"github.com/piclemx/sdk-go/discovery/parameters"
 	"net/http"
 	"net/http/httptest"
@@ -31,29 +30,27 @@ func buildTestServer(okResponse string) *httptest.Server {
 	return ts
 }
 
-func TestBuildGetEventSearch(t *testing.T) {
+func TestCallForEventsSearch(t *testing.T) {
 	ts := buildTestServer(okEventsResponse)
 	defer ts.Close()
-	api := api.NewAPI(api.Configuration{Key: validAPIKey, URL: ts.URL})
+	client := client.NewClient(client.Configuration{Key: validAPIKey, URL: ts.URL})
 
-	var resp domain.EventResponse
-	err := api.Call(BuildEventSearchReq().WithParam(parameters.Keyword, "test"), &resp)
+	resp, err := CallForEvents(client, BuildEventSearchReq().WithParam(parameters.Keyword, "test"))
 	if err != nil {
 		t.Errorf("error: %s", err)
 	}
 
-	if resp.Embedded.Events[0].Id != "1" {
+	if resp.Events[0].Id != "1" {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
 
-func TestBuildGetEventDetails(t *testing.T) {
+func TestCallForEventDetail(t *testing.T) {
 	ts := buildTestServer(okEventResponse)
 	defer ts.Close()
-	api := api.NewAPI(api.Configuration{Key: validAPIKey, URL: ts.URL})
+	client := client.NewClient(client.Configuration{Key: validAPIKey, URL: ts.URL})
 
-	var resp domain.Event
-	err := api.Call(BuildGetEventDetReq("test"), &resp)
+	resp, err := CallForEvent(client, BuildGetEventDetReq("test"))
 	if err != nil {
 		t.Errorf("error:", err)
 	}
@@ -63,13 +60,12 @@ func TestBuildGetEventDetails(t *testing.T) {
 	}
 }
 
-func TestBuildGetEventImages(t *testing.T) {
+func TestCallForEventImages(t *testing.T) {
 	ts := buildTestServer(okEventResponse)
 	defer ts.Close()
-	api := api.NewAPI(api.Configuration{Key: validAPIKey, URL: ts.URL})
+	client := client.NewClient(client.Configuration{Key: validAPIKey, URL: ts.URL})
 
-	var resp domain.Event
-	err := api.Call(BuildGetEventImgReq("test"), &resp)
+	resp, err := CallForEvent(client, BuildGetEventImgReq("test"))
 	if err != nil {
 		t.Errorf("error:", err)
 	}

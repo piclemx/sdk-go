@@ -1,4 +1,4 @@
-package api
+package client
 
 import (
 	"fmt"
@@ -47,15 +47,14 @@ func buildTimeoutServer(okResponse string) *httptest.Server {
 func TestCallSuccess(t *testing.T) {
 	ts := buildTestServer(okResponse)
 	defer ts.Close()
-	api := NewAPI(Configuration{Key: validAPIKey, URL: ts.URL})
+	api := NewClient(Configuration{Key: validAPIKey, URL: ts.URL})
 
-	var resp testStruct
-	err := api.Call(BaseAPIReq(), &resp)
+	resp, err := api.Call(BaseAPIReq())
 	if err != nil {
 		t.Errorf("error: %s", err)
 	}
 
-	if resp.Test != "response" {
+	if resp != okResponse {
 		t.Errorf("received incorrect response: %s", resp)
 	}
 }
@@ -63,12 +62,11 @@ func TestCallSuccess(t *testing.T) {
 func TestCallError(t *testing.T) {
 	ts := buildTestServer(okResponse)
 	defer ts.Close()
-	api := NewAPI(Configuration{Key: invalidAPIKey, URL: ts.URL})
+	api := NewClient(Configuration{Key: invalidAPIKey, URL: ts.URL})
 
-	var resp testStruct
-	err := api.Call(BaseAPIReq(), &resp)
+	resp, _ := api.Call(BaseAPIReq())
 
-	if err == nil {
+	if resp != errorResponse {
 		t.Errorf("should receive error")
 	}
 }
@@ -76,10 +74,9 @@ func TestCallError(t *testing.T) {
 func TestCallApiWithTimeout(t *testing.T) {
 	ts := buildTimeoutServer(okResponse)
 	defer ts.Close()
-	api := NewAPI(Configuration{Key: validAPIKey, URL: ts.URL, Timeout: 10 * time.Millisecond})
+	api := NewClient(Configuration{Key: validAPIKey, URL: ts.URL, Timeout: 10 * time.Millisecond})
 
-	var resp testStruct
-	err := api.Call(BaseAPIReq(), &resp)
+	_, err := api.Call(BaseAPIReq())
 
 	if err == nil || !strings.Contains(err.Error(), "Client.Timeout") {
 		t.Errorf("should have timeout")
@@ -88,7 +85,7 @@ func TestCallApiWithTimeout(t *testing.T) {
 
 func TestGetKey(t *testing.T) {
 	key := "key"
-	api := NewAPI(DefaultConfiguration().WithKey(key))
+	api := NewClient(DefaultConfiguration().WithKey(key))
 
 	if api.Key() != "" && api.Key() != key {
 		t.Errorf("Should have the same key")

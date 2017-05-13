@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/piclemx/sdk-go/api"
+	"github.com/piclemx/sdk-go/client"
 	"github.com/piclemx/sdk-go/discovery"
 	"github.com/piclemx/sdk-go/discovery/domain"
 	"github.com/piclemx/sdk-go/discovery/parameters"
@@ -19,51 +19,48 @@ func main() {
 		return
 	}
 
-	api := api.NewAPI(api.DefaultConfiguration().WithKey(apikey))
+	client := client.NewClient(client.DefaultConfiguration().WithKey(apikey))
 
-	eventSearchResp := eventSearch(api)
+	eventSearchResp := eventSearch(client)
 	fmt.Println("Event search:")
-	for _, event := range eventSearchResp.Embedded.Events {
+	for _, event := range eventSearchResp.Events {
 		fmt.Println(event.Id, event.Name, event.URL)
 	}
 
-	eventDetailsResp := eventDetails(api, eventSearchResp.Embedded.Events[0].Id)
+	eventDetailsResp := eventDetails(client, eventSearchResp.Events[0].Id)
 	fmt.Println("Event details:")
 	fmt.Println(eventDetailsResp.Id, eventDetailsResp.Name, eventDetailsResp.URL)
 
-	eventImagesResp := eventImages(api, eventDetailsResp.Id)
+	eventImagesResp := eventImages(client, eventDetailsResp.Id)
 	fmt.Println("Event images:")
 	for _, image := range eventImagesResp.Images {
 		fmt.Println(image.Ratio, image.Url)
 	}
 }
 
-func eventSearch(api *api.API) domain.EventResponse {
+func eventSearch(client *client.Client) *domain.Events {
 	eventSearchReq := discovery.BuildEventSearchReq().WithParam(parameters.Keyword, "ed sheeran")
-	var eventSearchResp domain.EventResponse
-	err := api.Call(eventSearchReq, &eventSearchResp)
+	resp, err := discovery.CallForEvents(client, eventSearchReq)
 	if err != nil {
 		log.Println(err)
 	}
-	return eventSearchResp
+	return resp
 }
 
-func eventDetails(api *api.API, id string) domain.Event {
+func eventDetails(client *client.Client, id string) *domain.Event {
 	eventDetailsReq := discovery.BuildGetEventDetReq(id)
-	var eventDetailsResp domain.Event
-	err := api.Call(eventDetailsReq, &eventDetailsResp)
+	resp, err := discovery.CallForEvent(client, eventDetailsReq)
 	if err != nil {
 		log.Println(err)
 	}
-	return eventDetailsResp
+	return resp
 }
 
-func eventImages(api *api.API, id string) domain.Event {
+func eventImages(client *client.Client, id string) *domain.Event {
 	eventImagesReq := discovery.BuildGetEventImgReq(id)
-	var eventImagesResp domain.Event
-	err := api.Call(eventImagesReq, &eventImagesResp)
+	resp, err := discovery.CallForEvent(client, eventImagesReq)
 	if err != nil {
 		log.Println(err)
 	}
-	return eventImagesResp
+	return resp
 }
