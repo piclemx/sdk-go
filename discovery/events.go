@@ -24,6 +24,7 @@ func BuildGetEventImgReq(id string) *client.APIRequest {
 	return client.BaseAPIReq().WithResource(eventResource + "/" + id + "/images")
 }
 
+// Calls API to get domain.Events
 func CallForEvents(client *client.Client, request *client.APIRequest) (*domain.Events, error) {
 	resp, err := client.Call(request)
 	if err != nil {
@@ -40,6 +41,7 @@ func CallForEvents(client *client.Client, request *client.APIRequest) (*domain.E
 	return &eventResponse.Embedded, nil
 }
 
+// Calls API to get domain.Event
 func CallForEvent(client *client.Client, request *client.APIRequest) (*domain.Event, error) {
 	resp, err := client.Call(request)
 	if err != nil {

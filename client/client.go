@@ -35,7 +35,7 @@ func (apiReq *APIRequest) WithParam(param string, value string) *APIRequest {
 	return apiReq
 }
 
-// Call discovery api
+// Call discovery API to get json string or an error
 func (client *Client) Call(apiReq *APIRequest) (string, error) {
 	if client.client == nil {
 		client.client = &http.Client{Timeout: client.conf.Timeout}
@@ -66,11 +66,13 @@ func (client *Client) Call(apiReq *APIRequest) (string, error) {
 	return string(body), nil
 }
 
+// Creates a basic API request
 func BaseAPIReq() *APIRequest {
 	apiReq := &APIRequest{method: "GET", params: make(map[string]string)}
 	return apiReq
 }
 
+// Add resource to the API request
 func (apiRep *APIRequest) WithResource(resource string) *APIRequest {
 	apiRep.resource = resource
 	return apiRep
@@ -78,7 +80,7 @@ func (apiRep *APIRequest) WithResource(resource string) *APIRequest {
 
 func (client *Client) buildHttpReq(request *APIRequest) (*http.Request, error) {
 
-	req, err := http.NewRequest(request.method, client.conf.URL+request.resource, nil)
+	req, err := http.NewRequest(request.method, client.urlWith(request.resource), nil)
 	if err != nil {
 		log.Println("buildHttpReq:", err)
 		return nil, err
@@ -91,4 +93,8 @@ func (client *Client) buildHttpReq(request *APIRequest) (*http.Request, error) {
 
 	req.URL.RawQuery = q.Encode()
 	return req, nil
+}
+
+func (client *Client) urlWith(resource string) string {
+	return client.conf.URL + resource
 }
